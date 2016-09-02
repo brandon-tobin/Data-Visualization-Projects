@@ -20,7 +20,6 @@
         }
         .lines-filled {
             stroke: green;
-            fill-rule: evenodd;
             fill: green;
         }
         .circles {
@@ -77,7 +76,7 @@
             <td>
                 <svg width="400" height="200">
                     <g transform="translate(0, 200) scale(1, -1)">
-                        <path class="lines" d="M 10 100 L 20 80 L 30 130 L 40 90 L 50 110 L 60 140 L 70 60 L 80 40 L 90 120 L 100 70 L 120 50"/>
+                        <path class="lines" d="M 10 100 L 20 80 L 30 130 L 40 90 L 50 110 L 60 140 L 70 60 L 80 40 L 90 120 L 100 70 L 110 50"/>
                     </g>
                 </svg>
             </td>
@@ -100,28 +99,26 @@
         </tr>
     </table>
 
-    <p>Area Charts -- Still need to figure out:</p>
+    <p>Area Charts:</p>
 
-    <svg width="400" height="200">
-        <g transform="translate(0, 200) scale(1, -1)">
-            <line class="lines-filled" x1="10" y1="64.32" x2="30" y2="55.6" />
-            <line class="lines-filled" x1="30" y1="55.6" x2="50" y2="60.64" />
-            <line class="lines-filled" x1="50" y1="60.64" x2="70" y2="70.48" />
-            <line class="lines-filled" x1="70" y1="70.48" x2="90" y2="66.64" />
-            <line class="lines-filled" x1="90" y1="66.64" x2="110" y2="79.68" />
-            <line class="lines-filled" x1="110" y1="79.68" x2="130" y2="57.92" />
-            <line class="lines-filled" x1="130" y1="57.92" x2="150" y2="34.08" />
-            <line class="lines-filled" x1="150" y1="34.08" x2="170" y2="86.72" />
-            <line class="lines-filled" x1="170" y1="86.72" x2="190" y2="38.56" />
-            <line class="lines-filled" x1="190" y1="38.56" x2="210" y2="45.44" />
-        </g>
-    </svg>
-
-    <svg width="400" height="200">
-        <g transform="translate(0, 200) scale(1, -1)">
-            <path class="lines-filled" d="M 10 80 L 30 64 L 50 104 L 70 72 L 90 88 L 110 112 L 130 48 L 150 32 L 170 96 L 190 56 L 210 40"/>
-        </g>
-    </svg>
+    <table>
+        <tr>
+            <td>
+                <svg width="400" height="200">
+                    <g transform="translate(0, 200) scale(1, -1)">
+                        <path class="lines-filled" d="M 10 0 L 10 100 L 20 80 L 30 130 L 40 90 L 50 110 L 60 140 L 70 60 L 80 40 L 90 120 L 100 70 L 110 50 L 110 0 L 10 0"/>
+                    </g>
+                </svg>
+            </td>
+            <td>
+                <svg width="400" height="200">
+                    <g transform="translate(0, 200) scale(1, -1)">
+                        <path class="lines-filled" d="M 10 0 L 10 80.4 L 20 69.5 L 30 75.8 L 40 88.1 L 50 83.3 L 60 99.6 L 70 72.4 L 80 42.6 L 90 108.4 L 100 48.2 L 110 56.8 L 110 0 L 10 0" />
+                    </g>
+                </svg>
+            </td>
+        </tr>
+    </table>
 
     <p>Scatter Plot:</p>
 
