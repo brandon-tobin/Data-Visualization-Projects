@@ -2,7 +2,23 @@
 // These keep JSHint quiet if you're using it (highly recommended!)
 
 function staircase() {
-    // ****** TODO: PART II ******
+    // ****** TODO: PART II - Need to fix random underbar line******
+
+    var bars = document.getElementById("bars").children;
+    var widthValues = [];
+
+    for (i of bars)
+         widthValues.push(parseInt(i.getAttribute("width")));
+
+    widthValues.sort(function(a, b){return a - b});
+
+    var i = 0;
+
+    for (j of bars)
+    {
+        j.setAttribute("width", widthValues[i]);
+        i++;
+    }
 }
 
 function update(error, data) {
@@ -48,8 +64,45 @@ function update(error, data) {
     // ****** TODO: PART III (you will also edit in PART V) ******
 
     // TODO: Select and update the 'a' bar chart bars
+    var svg = d3.selectAll("svg");
+
+    var bars = svg.selectAll(".bars-a").data(data);
+
+    bars.merge(bars);
+
+    // bars.attr("width", function (d) {
+    //         return d.a * 10;
+    //     })
+    bars.attr("width", function (d){
+        return aScale(d);
+    })
+        .attr("height", 20)
+        .attr("y", function (d, i) {
+            console.log((i * 20) + 20);
+            return (i * 20) + 20;
+        })
+        .style("fill", "steelblue")
+        .attr("opacity", 1);
 
     // TODO: Select and update the 'b' bar chart bars
+    var svg = d3.selectAll("svg");
+
+    var bars = svg.selectAll(".bars-b").data(data);
+
+    bars.merge(bars);
+
+    bars.attr("width", function (d) {
+        return d.b * 10;
+    })
+        .attr("height", 20)
+        .attr("y", function (d, i) {
+            console.log((i * 20) + 20);
+            return (i * 20) + 20;
+        })
+        .style("fill", "steelblue")
+        .attr("opacity", 1)
+        .attr("stroke", "darkgray")
+        .attr("stroke-width", 1);
 
     // TODO: Select and update the 'a' line chart path using this line generator
     var aLineGenerator = d3.line()
