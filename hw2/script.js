@@ -60,7 +60,6 @@ function update(error, data) {
         .domain([0, data.length])
         .range([0, 110]);
 
-    // ****** TODO: PART III (you will also edit in PART V) ******
 
     // Select and update the 'a' bar chart bars
     var svg = d3.selectAll("#bars-a");
@@ -136,7 +135,7 @@ function update(error, data) {
         .data(data)
         .attr("d", aLineGenerator(data));
 
-    // TODO: Select and update the 'b' line chart path (create your own generator)
+    // Select and update the 'b' line chart path (create your own generator)
     var bLineGenerator = d3.line()
         .x(function (d, i) {
             return iScale(i);
@@ -183,8 +182,8 @@ function update(error, data) {
         .data(data)
         .attr("d", bAreaGenerator(data));
 
-    // TODO: Select and update the scatterplot points
-    var svg = d3.selectAll("svg#scatter");
+    // Select and update the scatterplot points
+    var svg = d3.selectAll("#scatter");
 
     var circles = svg.selectAll("circle").data(data);
 
