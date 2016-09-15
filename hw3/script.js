@@ -13,7 +13,7 @@ function updateBarChart(selectedDimension) {
         xAxisWidth = 100,
         yAxisHeight = 70;
 
-    // ******* TODO: PART I *******
+    // ******* PART I *******
 
     var yAxisPad = 75;
 
@@ -37,7 +37,7 @@ function updateBarChart(selectedDimension) {
     // Create colorScale
     var colorScale = d3.scaleLinear()
         .domain([0, min, max])
-        .range(["darkred", "steelblue", "midnightblue"]);
+        .range(["deepskyblue", "steelblue", "midnightblue"]);
 
     // Create the axes (hint: use #xAxis and #yAxis)
     var xAxisScale = d3.scaleBand()
@@ -86,33 +86,42 @@ function updateBarChart(selectedDimension) {
         .merge(bars);
 
     bars.attr("x", function (d, i) {
-            return xScale(i);
-        })
+        return xScale(i);
+    })
         .attr("y", 50   )
         .attr("width", 20)
         .attr("height", function (d) {
             return yScale(d[selectedDimension]);
         })
         .attr("transform", "translate(0, 400) scale(1, -1)")
-        .style("fill", function (d) {
+        .attr("fill", function (d) {
             return colorScale(d[selectedDimension]);
         });
 
 
 
-    // ******* TODO: PART II *******
+    // ******* PART II *******
 
     // Implement how the bars respond to click events
     // Color the selected bar to indicate is has been selected.
     // Make sure only the selected bar has this new color.
 
-    // TODO: Need to uncolor Red when new bar is selected!!!!
+    var selectedCup = "";
 
-    d3.selectAll("rect")
+    var svg = d3.select("g#bars");
+
+    svg.selectAll("rect")
         .on("click", function (d) {
+            d3.select("rect#selected")
+                .classed("selected", false)
+                .attr("id", null);
             d3.select(this)
-                .style("fill", "Red");
-    });
+                .attr("id", "selected")
+                .classed("selected", true);
+            selectedCup = d;
+            updateInfo(selectedCup);
+            updateMap(selectedCup);
+        });
 
     // Call the necessary update functions for when a user clicks on a bar.
     // Note: think about what you want to update when a different bar is selected.
@@ -128,15 +137,12 @@ function updateBarChart(selectedDimension) {
  */
 function chooseData() {
 
-    // ******* TODO: PART I *******
     //Changed the selected data when a user selects a different
     // menu item from the drop down.
 
     var selection = document.getElementById('dataset').value;
 
     updateBarChart(selection);
-
-
 }
 
 /**
@@ -146,15 +152,28 @@ function chooseData() {
  */
 function updateInfo(oneWorldCup) {
 
-    // ******* TODO: PART III *******
+    // ******* PART III *******
 
     // Update the text elements in the infoBox to reflect:
     // World Cup Title, host, winner, runner_up, and all participating teams that year
 
     // Hint: For the list of teams, you can create an list element for each team.
     // Hint: Select the appropriate ids to update the text content.
+    document.getElementById("edition").innerHTML = oneWorldCup.EDITION;
+    document.getElementById("host").innerHTML = oneWorldCup.host;
+    document.getElementById("winner").innerHTML = oneWorldCup.winner;
+    document.getElementById("silver").innerHTML = oneWorldCup.runner_up;
 
+    var teamArray = oneWorldCup.teams_names;
 
+    var teams = "<ul>";
+
+    for (var i = 0; i < teamArray.length; i++)
+        teams += "<li>" + teamArray[i] + "</li>";
+
+    teams += "</ul>";
+
+    document.getElementById("teams").innerHTML = teams;
 }
 
 /**
@@ -167,9 +186,11 @@ function drawMap(world) {
     //(note that projection is global!
     // updateMap() will need it to add the winner/runner_up markers.)
 
-    projection = d3.geoConicConformal().scale(200).translate([500, 450]);
+    projection = d3.geoConicConformal().scale(150).translate([400, 350]);
 
     // ******* TODO: PART IV *******
+
+    // TODO: Need Gridlines!!!
 
     // Draw the background (country outlines; hint: use #map)
     // Make sure and add gridlines to the map
@@ -180,7 +201,20 @@ function drawMap(world) {
     // Make sure and give your paths the appropriate class (see the .css selectors at
     // the top of the provided html file)
 
+    var path = d3.geoPath()
+        .projection(projection);
 
+    var svg = d3.select("g#map");
+
+    svg.selectAll("path")
+        .data(topojson.feature(world, world.objects.countries).features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr("id", function (d) {
+            return (d.id);
+        })
+        .classed("countries", true);
 }
 
 /**
@@ -188,14 +222,19 @@ function drawMap(world) {
  */
 function clearMap() {
 
-    // ******* TODO: PART V*******
+    // ******* PART V*******
     //Clear the map of any colors/markers; You can do this with inline styling or by
     //defining a class style in styles.css
 
     //Hint: If you followed our suggestion of using classes to style
     //the colors and markers for hosts/teams/winners, you can use
     //d3 selection and .classed to set these classes on and off here.
+    d3.selectAll("path")
+        .classed("team", false)
+        .classed("host", false);
 
+    d3.selectAll("circle")
+        .remove();
 }
 
 
@@ -208,23 +247,38 @@ function updateMap(worldcupData) {
     //Clear any previous selections;
     clearMap();
 
-    // ******* TODO: PART V *******
+    // ******* PART V *******
 
     // Add a marker for the winner and runner up to the map.
+    var svg = d3.select("g#points");
+    svg.append("circle")
+        .attr("cx", projection([worldcupData.win_pos[0], worldcupData.win_pos[1]])[0])
+        .attr("cy", projection([worldcupData.win_pos[0], worldcupData.win_pos[1]])[1])
+        .attr("r", 5)
+        .classed("gold", true);
+
+    svg.append("circle")
+        .attr("cx", projection([worldcupData.ru_pos[0], worldcupData.ru_pos[1]])[0])
+        .attr("cy", projection([worldcupData.ru_pos[0], worldcupData.ru_pos[1]])[1])
+        .attr("r", 5)
+        .classed("silver", true);
 
     //Hint: remember we have a conveniently labeled class called .winner
     // as well as a .silver. These have styling attributes for the two
     //markers.
 
-
     //Select the host country and change it's color accordingly.
+    d3.select("path#" + worldcupData.host_country_code)
+        .classed("host", true);
 
     //Iterate through all participating teams and change their color as well.
+    var teamISO = worldcupData.teams_iso;
 
+    for (var i = 0; i < teamISO.length; i++) {
+        d3.select("path#" + teamISO[i])
+            .classed("team", true);
+    }
     //We strongly suggest using classes to style the selected countries.
-
-
-
 }
 
 /* DATA LOADING */
