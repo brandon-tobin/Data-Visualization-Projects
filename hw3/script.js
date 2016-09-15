@@ -15,14 +15,88 @@ function updateBarChart(selectedDimension) {
 
     // ******* TODO: PART I *******
 
+    var yAxisPad = 75;
+
+    var min = d3.min(allWorldCupData, function (d) {return d[selectedDimension];});
+    var max = d3.max(allWorldCupData, function (d) {return d[selectedDimension];});
+    var width = parseInt(d3.select("svg#barChart").style("width"), 10);
+    var height = parseInt(d3.select("svg#barChart").style("height"), 10);
+
     // Create the x and y scales; make
     // sure to leave room for the axes
+    var xScale = d3.scaleLinear()
+        .domain([0, allWorldCupData.length])
+        .range([yAxisPad, width])
+        .nice();
+
+    var yScale = d3.scaleLinear()
+        .domain([0, max])
+        .range([0, height - xAxisWidth])
+        .nice();
 
     // Create colorScale
+    var colorScale = d3.scaleLinear()
+        .domain([0, min, max])
+        .range(["darkred", "steelblue", "midnightblue"]);
 
     // Create the axes (hint: use #xAxis and #yAxis)
+    var xAxisScale = d3.scaleBand()
+        .range([yAxisPad, width - 1]);
+
+    xAxisScale.domain(allWorldCupData.map(function (d) {
+        return d.year;
+    }));
+
+    var yAxisScale = d3.scaleLinear()
+        .domain([0, max])
+        .range([height - 50, 0]);
+
+    var svg = d3.select("g#xAxis");
+
+    var xAxis = d3.axisBottom();
+    xAxis.scale(xAxisScale);
+
+    svg.attr("transform", "translate(" + 0 + "," + (height - 50) + ")")
+        .call(xAxis)
+        .selectAll("text")
+        .attr("y", -5)
+        .attr("x", 9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start")
+        .merge(svg);
+
+    var svg = d3.select("g#yAxis");
+
+    var yAxis = d3.axisLeft();
+    yAxis.scale(yAxisScale);
+
+    svg.attr("transform", "translate(" + (yAxisPad - 2) + "," + 0 +")")
+        .call(yAxis);
 
     // Create the bars (hint: use #bars)
+    var svg = d3.select("g#bars");
+
+    var bars = svg.selectAll("rect").data(allWorldCupData);
+
+    bars.exit()
+        .remove();
+
+    bars = bars.enter()
+        .append("rect")
+        .merge(bars);
+
+    bars.attr("x", function (d, i) {
+            return xScale(i);
+        })
+        .attr("y", 50   )
+        .attr("width", 20)
+        .attr("height", function (d) {
+            return yScale(d[selectedDimension]);
+        })
+        .attr("transform", "translate(0, 400) scale(1, -1)")
+        .style("fill", function (d) {
+            return colorScale(d[selectedDimension]);
+        });
 
 
 
@@ -31,6 +105,14 @@ function updateBarChart(selectedDimension) {
     // Implement how the bars respond to click events
     // Color the selected bar to indicate is has been selected.
     // Make sure only the selected bar has this new color.
+
+    // TODO: Need to uncolor Red when new bar is selected!!!!
+
+    d3.selectAll("rect")
+        .on("click", function (d) {
+            d3.select(this)
+                .style("fill", "Red");
+    });
 
     // Call the necessary update functions for when a user clicks on a bar.
     // Note: think about what you want to update when a different bar is selected.
@@ -49,6 +131,11 @@ function chooseData() {
     // ******* TODO: PART I *******
     //Changed the selected data when a user selects a different
     // menu item from the drop down.
+
+    var selection = document.getElementById('dataset').value;
+
+    updateBarChart(selection);
+
 
 }
 
@@ -176,6 +263,8 @@ d3.csv("data/fifa-world-cup.csv", function (error, csv) {
 
     // Store csv data in a global variable
     allWorldCupData = csv;
+
+    allWorldCupData = allWorldCupData.reverse();
     // Draw the Bar chart for the first time
     updateBarChart('attendance');
 });
