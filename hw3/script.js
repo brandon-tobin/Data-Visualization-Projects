@@ -71,6 +71,8 @@ function updateBarChart(selectedDimension) {
     yAxis.scale(yAxisScale);
 
     svg.attr("transform", "translate(" + (yAxisPad - 2) + "," + 0 +")")
+        .transition()
+        .duration(4000)
         .call(yAxis);
 
     // Create the bars (hint: use #bars)
@@ -85,9 +87,11 @@ function updateBarChart(selectedDimension) {
         .append("rect")
         .merge(bars);
 
-    bars.attr("x", function (d, i) {
-        return xScale(i);
-    })
+    bars.transition()
+        .duration(3000)
+        .attr("x", function (d, i) {
+            return xScale(i);
+        })
         .attr("y", 50   )
         .attr("width", 20)
         .attr("height", function (d) {
@@ -188,9 +192,7 @@ function drawMap(world) {
 
     projection = d3.geoConicConformal().scale(150).translate([400, 350]);
 
-    // ******* TODO: PART IV *******
-
-    // TODO: Need Gridlines!!!
+    // ******* PART IV *******
 
     // Draw the background (country outlines; hint: use #map)
     // Make sure and add gridlines to the map
@@ -204,7 +206,17 @@ function drawMap(world) {
     var path = d3.geoPath()
         .projection(projection);
 
+    var graticule = d3.geoGraticule();
+
+    console.log(graticule);
+
     var svg = d3.select("g#map");
+
+
+    svg.append("path")
+        .datum(graticule)
+        .attr("class", "grat")
+        .attr("d", path);
 
     svg.selectAll("path")
         .data(topojson.feature(world, world.objects.countries).features)
