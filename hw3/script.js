@@ -15,6 +15,8 @@ function updateBarChart(selectedDimension) {
 
     // ******* PART I *******
 
+    console.log(allWorldCupData);
+
     var yAxisPad = 75;
 
     var min = d3.min(allWorldCupData, function (d) {return d[selectedDimension];});

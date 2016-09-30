@@ -485,6 +485,16 @@ function collapseList() {
 
     // ******* TODO: PART IV *******
 
+    for (var i = tableElements.length-1; i > 0; i--)
+    {
+        console.log(tableElements.length);
+        // if (tableElements[i])
+        // console.log(tableElements[i].value.type);
+        if(tableElements[i].value["type"] == "game")
+        {
+            tableElements.splice(i, 1);
+        }
+    }
 
 }
 
@@ -502,9 +512,9 @@ function updateList(i) {
 
     // Case when next row is an aggregate, expand the list
 
-    if (tableElements[i+1].value["type"] == "aggregate")
+    if (tableElements[i+1] == null || tableElements[i+1].value["type"] == "aggregate")
     {
-        console.log("Made it here!!!!!");
+        // console.log("Made it here!!!!!");
         var insertRowNum = i;
         var loopTimes = teamData[i].value["games"].length;
 
@@ -512,7 +522,7 @@ function updateList(i) {
         {
             // var toBeAdded = teamData[i].value["games"][j];
             var toBeAdded = Object.assign({}, teamData[i].value["games"][j]);
-            console.log(toBeAdded);
+            // console.log(toBeAdded);
             toBeAdded.key = "x" + toBeAdded.key;
             // console.log(toBeAdded);
             tableElements.splice(insertRowNum + 1, 0, toBeAdded);
@@ -533,8 +543,7 @@ function updateList(i) {
             tableElements.splice(removeRowNum, 1);
             // insertRowNum++;
         }
-
-        console.log(teamData);
+        // console.log(teamData);
     }
 
 
