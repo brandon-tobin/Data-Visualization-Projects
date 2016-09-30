@@ -29,8 +29,20 @@ tbody th{
     color: #317f19;
 }
 
+.teamNames{
+    color: #317f19;
+    font-weight: bold;
+    float: right;
+}
+
 .game{
     color: #b1b1b1;
+}
+
+.gameNames{
+    color: #b1b1b1;
+    font-weight: bold;
+    float: right;
 }
 
 tbody td {
@@ -102,15 +114,54 @@ header {
     height: 100px;
 }
 
-.goalBar{
+.goalBarBlue{
     opacity:0.6;
+    fill: #364e74;
 }
 
-.goalCircle{
+.goalBarRed{
+    opacity:0.6;
+    fill: #be2714;
+}
+
+.goalCircleWinner{
     stroke-width: 3px;
     r:5;
+    fill: #364e74;
 }
 
+.goalCircleLooser{
+    stroke-width: 3px;
+    r: 5;
+    fill: #be2714;
+}
+
+.goalCircleNeutral{
+    stroke-width: 3px;
+    r: 5;
+    fill: grey;
+}
+
+.goalRingWinner{
+    stroke: #364e74;
+    stroke-width: 3px;
+    r: 5;
+    fill: white;
+}
+
+.goalRingLooser{
+    stroke: #be2714;
+    stroke-width: 3px;
+    r: 5;
+    fill: white;
+}
+
+.goalRingNeutral{
+    stroke: grey;
+    stroke-width: 3px;
+    r: 5;
+    fill: white;
+}
 
 .node circle {
     fill: #be2714;
