@@ -4,6 +4,14 @@ var teamData;
 /** Global var for list of all elements that will populate the table.*/
 var tableElements;
 
+/** Global vars for storing what kind of sort is applied.*/
+var teamSorted = false;
+var goalsSorted = false;
+var roundSorted = false;
+var winsSorted = false;
+var lossesSorted = false;
+var totalGamesSorted = false;
+
 
 /** Variables to be used when sizing the svgs in the table cells.*/
 var cellWidth = 70,
@@ -65,7 +73,7 @@ d3.json('data/fifa-matches.json',function(error,data){
 //  */
 // d3.csv("data/fifa-matches.csv", function (error, csvData) {
 //
-//    // ******* TODO: PART I *******
+//    // ******* PART I *******
 //
 //
 // });
@@ -92,22 +100,7 @@ d3.csv("data/fifa-tree.csv", function (error, csvData) {
  */
 function createTable() {
 
-// ******* TODO: PART II *******
-    var test = "Goals Made";
-    // console.log(teamData[0].value["Goals Made"]);
-    // console.log(teamData.value["Goals Made"]);
-    // console.log(teamData);
-    //
-    //
-    // console.log(maxGoals);
-
-    //    .domain([0, d3.max(teamData,function (d) {return d.value[goalsMadeHeader];})])
-    //console.log(teamData.value[goalsMadeHeader]);
-    // console.log(d3.max(teamData, function (d) {return d.value[goalsMadeHeader]}));
-    // console.log(d3.max(teamData, function (d) {return d.value[goalsConcededHeader]}));
-    //
-    // var absoluteMax = Math.max(d3.max(teamData, function (d) {return d.value[goalsMadeHeader]}), d3.max(teamData, function (d) {return d.value[goalsConcededHeader]}));
-    // console.log(absoluteMax);
+// ******* PART II *******
 
     // Setup goalScale and add axis
     goalScale.domain([0, Math.max(d3.max(teamData, function (d) {return d.value[goalsMadeHeader]}), d3.max(teamData, function (d) {return d.value[goalsConcededHeader]}))])
@@ -133,12 +126,200 @@ function createTable() {
     tableElements = teamData;
 
 
+// ******* PART V *******
+    var table = document.getElementsByTagName("thead");
 
+    var children = table[0].childNodes[1].childNodes;
 
+    for (var i = 1; i < children.length; i+= 2)
+    {
+        children[i].onclick = function() {
+            sortTable(this);
+        }
+    }
 
+    function sortTable(tableCell)
+    {
+        if (tableCell.textContent == "Team")
+        {
+            collapseList();
 
-// ******* TODO: PART V *******
+            if (teamSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.key < b.key)
+                        return -1;
+                    if (a.key > b.key)
+                        return 1;
+                    return 0;
+                });
+                teamSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.key < b.key)
+                        return 1;
+                    if (a.key > b.key)
+                        return -1;
+                    return 0;
+                });
+                teamSorted = false;
+            }
 
+            updateTable();
+        }
+
+        if (tableCell.textContent == " Goals ")
+        {
+            collapseList();
+
+            if (goalsSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Delta Goals"] < b.value["Delta Goals"])
+                        return 1;
+                    if (a.value["Delta Goals"] > b.value["Delta Goals"])
+                        return -1;
+                    return 0;
+                });
+                goalsSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Delta Goals"] < b.value["Delta Goals"])
+                        return -1;
+                    if (a.value["Delta Goals"] > b.value["Delta Goals"])
+                        return 1;
+                    return 0;
+                });
+                goalsSorted = false;
+            }
+
+            updateTable();
+        }
+
+        if (tableCell.textContent == "Round/Result")
+        {
+            collapseList();
+
+            if (roundSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value.Result.ranking < b.value.Result.ranking)
+                        return 1;
+                    if (a.value.Result.ranking > b.value.Result.ranking)
+                        return -1;
+                    return 0;
+                });
+                roundSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value.Result.ranking < b.value.Result.ranking)
+                        return -1;
+                    if (a.value.Result.ranking > b.value.Result.ranking)
+                        return 1;
+                    return 0;
+                });
+                roundSorted = false;
+            }
+
+            updateTable();
+        }
+
+        if (tableCell.textContent == "Wins")
+        {
+            collapseList();
+
+            if (winsSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Wins"] < b.value["Wins"])
+                        return 1;
+                    if (a.value["Wins"] > b.value["Wins"])
+                        return -1;
+                    return 0;
+                });
+                winsSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Wins"] < b.value["Wins"])
+                        return -1;
+                    if (a.value["Wins"] > b.value["Wins"])
+                        return 1;
+                    return 0;
+                });
+                winsSorted = false;
+            }
+
+            updateTable();
+        }
+
+        if (tableCell.textContent == "Losses")
+        {
+            collapseList();
+
+            if (lossesSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Losses"] < b.value["Losses"])
+                        return 1;
+                    if (a.value["Losses"] > b.value["Losses"])
+                        return -1;
+                    return 0;
+                });
+                lossesSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["Losses"] < b.value["Losses"])
+                        return -1;
+                    if (a.value["Losses"] > b.value["Losses"])
+                        return 1;
+                    return 0;
+                });
+                lossesSorted = false;
+            }
+
+            updateTable();
+        }
+
+        if (tableCell.textContent == "Total Games")
+        {
+            collapseList();
+
+            if (totalGamesSorted == false)
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["TotalGames"] < b.value["TotalGames"])
+                        return 1;
+                    if (a.value["TotalGames"] > b.value["TotalGames"])
+                        return -1;
+                    return 0;
+                });
+                totalGamesSorted = true;
+            }
+            else
+            {
+                tableElements.sort(function(a, b) {
+                    if (a.value["TotalGames"] < b.value["TotalGames"])
+                        return -1;
+                    if (a.value["TotalGames"] > b.value["TotalGames"])
+                        return 1;
+                    return 0;
+                });
+                totalGamesSorted = false;
+            }
+
+            updateTable();
+        }
+    }
 }
 
 /**
@@ -147,30 +328,7 @@ function createTable() {
  */
 function updateTable() {
 
-// ******* TODO: PART III *******
-
-    // var tr = d3.select("tbody").selectAll("tr")
-    //     .data(tableElements)
-    //     .enter()
-    //     .append("tr");
-    //
-    // tr.exit()
-    //     .remove();
-    //
-    // var td = tr.selectAll("td")
-    //     .data(function (d, i) {
-    //         return [{type: d.value["type"], vis: 'text', value: d.key},
-    //             {type: d.value["type"], vis: 'goals', value: [d.value[goalsMadeHeader], d.value[goalsConcededHeader], d.value["Delta Goals"]]},
-    //             {type: d.value["type"], vis: 'text', value: d.value.Result},
-    //             {type: d.value["type"], vis: 'bar', value: d.value["Wins"]},
-    //             {type: d.value["type"], vis: 'bar', value: d.value["Losses"]},
-    //             {type: d.value["type"], vis: 'bar', value: d.value["TotalGames"]}];
-    //     })
-    //     .enter()
-    //     .append("td");
-    //
-    // td.exit()
-    //     .remove();
+// ******* PART III *******
 
     var tr = d3.select("tbody").selectAll("tr")
         .data(tableElements);
@@ -180,6 +338,9 @@ function updateTable() {
 
     tr = tr.enter()
         .append("tr")
+        .on("mouseover", function (d) {
+            updateTree(d);
+        })
         .merge(tr);
 
     var td = tr.selectAll("td")
@@ -200,13 +361,7 @@ function updateTable() {
 
     td = tdEnter.merge(td);
 
-    // td = td.enter()
-    //     .append("td")
-    //     .merge(td);
-
-
     // Create the bars for Wins, Losses, Total Games
-    // var tds = td.filter(function (d) {return d.vis == "bar";}); //&& d.type == "aggregate";});
     var newTDS = tdEnter.filter(function (d) {return d.vis == "bar";}); // && d.type == "aggregate";});
 
     newTDS = newTDS.append("svg")
@@ -222,27 +377,16 @@ function updateTable() {
 
     td = td.merge(newTDS);
 
-    var tds = td.filter(function (d) {return d.vis == "bar" && d.type == "aggregate";});
-
-    // tds = tds.append("svg")
-    //     .attr("width", cellWidth)
-    //     .attr("height", cellHeight)
-    //     .append("g")
-    //     .append("rect");
-
-    // tds = tds.enter()
-    //     .append("svg")
-    //     .attr("width", cellWidth)
-    //     .attr("height", cellHeight)
-    //     .append("g")
-    //     .merge(tds);
-
+    var tds = td.filter(function (d) {return d.vis == "bar";}); //&& d.type == "aggregate";});
 
     tds.select("rect")
         .attr("x", 0)
         .attr("y", 0)
         .attr("width", function (d) {
-            return gameScale(d.value);
+            if (d.value == null)
+                return 0;
+            else
+                return gameScale(d.value);
         })
         .attr("height", barHeight)
         .attr("fill", function (d) {
@@ -250,11 +394,12 @@ function updateTable() {
         });
 
     // Create the labels for the bars
-    // tds.select("g")
-    //     .append("text")
     tds.select("text")
         .attr("x", function (d) {
-            return gameScale((d.value - 1.25));
+            if (d.value == null)
+                return 0;
+            else
+                return gameScale((d.value - 1.25));
         })
         .attr("y", cellHeight / 2)
         .attr("dy", ".35em")
@@ -262,71 +407,6 @@ function updateTable() {
             return d.value;
         })
         .attr("class", "label");
-
-    var tds = td.filter(function (d) {return d.vis == "bar" && d.type == "game";});
-
-    tds.select("rect")
-        .remove();
-
-    tds.select("text")
-        .remove();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // tds.exit()
-    //     .remove();
-
-    // tds = tds.append("svg")
-    //     .attr("width", cellWidth)
-    //     .attr("height", cellHeight)
-    //     .append("g");
-    //
-    // tds.append("rect")
-    //     .attr("x", 0)
-    //     .attr("y", 0)
-    //     .attr("width", function (d) {
-    //         return gameScale(d.value);
-    //     })
-    //     .attr("height", barHeight)
-    //     .attr("fill", function (d) {
-    //         return aggregateColorScale(Math.abs(d.value));
-    //     });
-    //
-    // // Create the labels for the bars
-    // tds.append("text")
-    //     .attr("x", function (d) {
-    //         return gameScale((d.value - 1.25));
-    //     })
-    //     .attr("y", cellHeight / 2)
-    //     .attr("dy", ".35em")
-    //     .text(function (d) {
-    //         return d.value;
-    //     })
-    //     .attr("class", "label");
-
 
     // Create the Goals chart
     var newTDS = tdEnter.filter(function (d) {return d.vis == "goals";}); //&& d.type == "aggregate";});
@@ -349,13 +429,6 @@ function updateTable() {
 
     td = td.merge(newTDS);
 
-    // td = td.merge(newTDS);
-    //
-    // newTDS = td.select("g")
-    //     .append("circle");
-    //
-    // td = td.merge(newTDS);
-
     var tds = td.filter(function (d) {return d.vis == "goals" && d.type == "aggregate";});
 
     tds.select("rect")
@@ -376,7 +449,6 @@ function updateTable() {
 
     tds.select("circle#firstCircle")
         .attr("cx", function (d) {
-            // console.log(d.value);
             return goalScale(d.value[0]);
         })
         .attr("cy", cellHeight / 2)
@@ -388,7 +460,6 @@ function updateTable() {
         });
 
     tds.select("circle#secondCircle")
-        // .append("circle")
         .attr("cx", function (d) {
             return goalScale(d.value[1]);
         })
@@ -399,7 +470,6 @@ function updateTable() {
             else
                 return "goalCircleLooser";
         });
-
 
     var tds = td.filter(function (d) {return d.vis == "goals" && d.type == "game";});
 
@@ -421,7 +491,6 @@ function updateTable() {
 
     tds.select("circle#firstCircle")
         .attr("cx", function (d) {
-            // console.log(d.value);
             return goalScale(d.value[0]);
         })
         .attr("cy", cellHeight / 2)
@@ -433,7 +502,6 @@ function updateTable() {
         });
 
     tds.select("circle#secondCircle")
-    // .append("circle")
         .attr("cx", function (d) {
             return goalScale(d.value[1]);
         })
@@ -445,36 +513,22 @@ function updateTable() {
                 return "goalRingLooser";
         });
 
-
-
-
-
-
     tds = td.filter(function (d) {return d.vis == "text" && d.type== "aggregate";})
         .html(function (d) {
-             // console.log(d);
             if (typeof d.value === 'string' || d.value instanceof String)
                 return "<span class=\"teamNames\" onclick=\"updateList(this.parentElement.parentElement.rowIndex - 2)\">" + d.value + "</span>";
-                // return "<span class=\"teamNames\" onclick=\"updateList()\">" + d.value + "</span>";
-                // return "<span class=\"teamNames\" onclick=\"updateList(" + d + ")\">" + d.value + "</span>";
             else
                 return d.value["label"];
         });
 
     tds = td.filter(function (d) {return d.vis == "text" && d.type== "game";})
         .html(function (d) {
-            // console.log(d);
             if (typeof d.value === 'string' || d.value instanceof String)
                 return "<span class=\"gameNames\">" + d.value + "</span>";
-                //return "<span class=\"teamNames\" onclick=\"updateList(this.parentElement.parentElement.rowIndex - 2)\">" + d.value + "</span>";
-            // return "<span class=\"teamNames\" onclick=\"updateList()\">" + d.value + "</span>";
-            // return "<span class=\"teamNames\" onclick=\"updateList(" + d + ")\">" + d.value + "</span>";
             else
                 return d.value["label"];
         });
-
-
-};
+}
 
 
 /**
@@ -483,19 +537,15 @@ function updateTable() {
  */
 function collapseList() {
 
-    // ******* TODO: PART IV *******
+    // ******* PART IV *******
 
     for (var i = tableElements.length-1; i > 0; i--)
     {
-        console.log(tableElements.length);
-        // if (tableElements[i])
-        // console.log(tableElements[i].value.type);
         if(tableElements[i].value["type"] == "game")
         {
             tableElements.splice(i, 1);
         }
     }
-
 }
 
 /**
@@ -504,57 +554,33 @@ function collapseList() {
  */
 function updateList(i) {
 
-    // ******* TODO: PART IV *******
-    // console.log("Made it here:");
-    // console.log(i);
-    // console.log(tableElements);
-    // console.log(teamData[i].value["games"].length);
-
-    // Case when next row is an aggregate, expand the list
+    // ******* PART IV *******
 
     if (tableElements[i+1] == null || tableElements[i+1].value["type"] == "aggregate")
     {
-        // console.log("Made it here!!!!!");
         var insertRowNum = i;
         var loopTimes = teamData[i].value["games"].length;
 
         for (var j = 0; j < loopTimes; j++)
         {
-            // var toBeAdded = teamData[i].value["games"][j];
             var toBeAdded = Object.assign({}, teamData[i].value["games"][j]);
-            // console.log(toBeAdded);
             toBeAdded.key = "x" + toBeAdded.key;
-            // console.log(toBeAdded);
             tableElements.splice(insertRowNum + 1, 0, toBeAdded);
             insertRowNum++;
         }
     }
-
     else
     {
         var removeRowNum = i+1;
         var loopTimes = teamData[i].value["games"].length;
 
-        for (var j = 0; j < loopTimes; j++)
+        for (j = 0; j < loopTimes; j++)
         {
-            // var toBeAdded = teamData[i].value["games"][j];
-            // toBeAdded.key = "x" + toBeAdded.key;
-            // console.log(toBeAdded);
             tableElements.splice(removeRowNum, 1);
-            // insertRowNum++;
         }
-        // console.log(teamData);
     }
 
-
-    // console.log(teamData[i].value["games"].length);
-    //
-    // console.log(teamData[i].value["games"][2]);
-
-    //tableElements.splice(i,howmany,item1,.....,itemX)
-    // console.log(tableElements);
     updateTable();
-    // console.log(tableElements);
 }
 
 /**
@@ -564,18 +590,65 @@ function updateList(i) {
  */
 function createTree(treeData) {
 
-    // ******* TODO: PART VI *******
-    //  var root = d3.stratify()
-    //     .id(function (d) { return d.id;})
-    //     .parentId(function (d) {console.log(d.ParentGame); return d.ParentGame; })
-    //     .data(treeData);
+    // ******* PART VI *******
 
-    // var root = d3.stratify()
-    //     .id(function(d) { return d.id; })
-    //     .parentId(function(d) {console.log(d.ParentGame); return d.ParentGame; })
-    //     (treeData);
+    var root = d3.stratify()
+        .id(function(d) { return d.id; })
+        .parentId(function(d) {
+            if (treeData[d.ParentGame] == null)
+                return '';
+            else
+                return treeData[d.ParentGame].id; })
+        (treeData);
 
-};
+    var svg = d3.select("g#tree")
+        .attr("transform", "translate(75,0)");
+
+    var tree = d3.tree()
+        .size([675, 300]);
+
+    tree(root);
+
+    var link = svg.selectAll(".link")
+        .data(root.descendants().slice(1))
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", function (d) {
+            return "M" + d.y + "," + d.x
+                + "C" + (d.y + d.parent.y) / 2 + "," + d.x
+                + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
+                + " " + d.parent.y + "," + d.parent.x;
+        });
+
+    var node = svg.selectAll(".node")
+        .data(root.descendants())
+        .enter().append("g")
+        .attr("class", function (d) {
+            if (d.parent == null || d.data.Team == d.parent.data.Team)
+                return "winner";
+            else
+                return "node";
+        })
+        .attr("transform", function (d) {
+            return "translate(" + d.y + "," + d.x + ")";
+        });
+
+    node.append("circle")
+        .attr("r", 5);
+
+    node.append("text")
+        .attr("dy", 3)
+        .attr("x", function (d) {
+            return d.children ? -8 : 8;
+        })
+        .attr("class", "node")
+        .style("text-anchor", function (d) {
+            return d.children ? "end" : "start";
+        })
+        .text(function (d) {
+            return (d.data.Team);
+        });
+}
 
 /**
  * Updates the highlighting in the tree based on the selected team.
@@ -585,9 +658,45 @@ function createTree(treeData) {
  */
 function updateTree(row) {
 
-    // ******* TODO: PART VII *******
+    // ******* PART VII *******
 
+    clearTree();
 
+    if (row.key.substr(0,1) == "x")
+    {
+        var pathElements = d3.selectAll("g#tree path");
+
+        var selectedPaths = pathElements.filter(function (d) {
+            return (d.data.Team == row.key.substr(1, row.key.length) && d.data.Opponent == row.value.Opponent)
+                || (d.data.Team == row.value.Opponent && d.data.Opponent == row.key.substr(1, row.key.length));
+        });
+
+        selectedPaths.classed("selected", true);
+
+        var textElements = d3.selectAll("g#tree text");
+
+        var selectedText = textElements.filter(function (d) {
+            return (d.data.Team == row.key.substr(1, row.key.length) && d.data.Opponent == row.value.Opponent)
+                || (d.data.Team == row.value.Opponent && d.data.Opponent == row.key.substr(1, row.key.length));
+        });
+
+        selectedText.classed("selectedLabel", true);
+
+    }
+    else
+    {
+        var pathElements = d3.selectAll("g#tree path");
+
+        var selectedPaths = pathElements.filter(function (d) {return d.data.Team == row.key && d.parent.data.Team == row.key;});
+
+        selectedPaths.classed("selected", true);
+
+        var textElements = d3.selectAll("g#tree text");
+
+        var selectedText = textElements.filter(function (d) {return d.data.Team == row.key;});
+
+        selectedText.classed("selectedLabel", true);
+    }
 }
 
 /**
@@ -595,10 +704,11 @@ function updateTree(row) {
  */
 function clearTree() {
 
-    // ******* TODO: PART VII *******
+    // ******* PART VII *******
+    var paths = d3.selectAll("g#tree path")
+        .classed("selected", false);
 
-
+    var text = d3.selectAll("g#tree text")
+        .classed("selectedLabel", false);
 }
-
-
 
