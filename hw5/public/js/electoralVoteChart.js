@@ -82,119 +82,82 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
 
     var totaldata = independent.concat(democrat, republican);
 
-    // console.log(totaldata);
-
     var stackData = [];
 
-    for (var j = 0; j < totaldata.length; j++)
+    var evCount = 0;
+
+    stackData.push({x: 0, y: totaldata[0].Total_EV, y0: 0, color: totaldata[0].RD_Difference});
+
+    for (var j = 1; j < totaldata.length; j++)
     {
-        stackData.push({x: j, y: totaldata[j].Total_EV});
+        stackData.push({x: j, y: totaldata[j].Total_EV, y0: totaldata[j-1].Total_EV + evCount, color: totaldata[j-1].RD_Difference});
+        evCount += totaldata[j-1].Total_EV;
     }
 
     var stack = d3.stack();
     stack(stackData);
 
-    var xScale = d3.scaleBand()
-        .domain(d3.range(stackData.length))
-        .rangeRound([0, self.svgWidth], 0.05);
+    console.log(stackData);
 
-    var yScale = d3.scaleLinear()
-        .domain([0,
-            d3.max(stackData, function(d) {
-                return d3.max(d, function(d) {
-                    // console.log(d.y0);
-                    return d.y0 + d.y;
-                });
-            })
-        ])
-        .range([0, self.svgHeight]);
+    var xScale = d3.scaleLinear()
+        .domain([0, evCount])
+        .range([0, self.svgWidth])
+        .nice();
 
-    var groups = self.svg.selectAll("g")
-        .data(stackData)
-        .enter()
-        .append("g")
-        .style("fill", function(d, i) {
-            return colorScale(i);
-        });
+    var groups = self.svg.selectAll("g").data(stackData);
 
-    // Add a rect for each data value
-    var rects = groups.selectAll("rect")
-        .data(function(d) { return d; })
-        .enter()
-        .append("rect")
-        .attr("x", function(d, i) {
-            return xScale(i);
+    var groupsEnter = groups.enter().append("g");
+    groupsEnter.append("rect");
+
+    groups = groups.merge(groupsEnter);
+
+    groups.select("rect")
+        .attr("x", function(d) {
+            return xScale(d.y0);
         })
-        .attr("y", function(d) {
-            // console.log("Made it here");
-            return yScale(d.y0);
+        .attr("y", self.svgHeight/2)
+        .attr("height", 20)
+        .attr("width", function (d) {
+            return xScale(d.y);
         })
-        .attr("height", function(d) {
-            return yScale(d.y);
+        .attr("fill", function (d) {
+            if (d.color == 0)
+                return "#45AD6A";
+            else
+                return colorScale(d.color);
         })
-        .attr("width", xScale.bandwidth());
-
-
-
-    //Create the stacked bar chart.
-    //Use the global color scale to color code the rectangles.
-    //HINT: Use .electoralVotes class to style your bars.
-
-
-    // var min = d3.min(totaldata, function (d) {return d.Total_EV;});
-    // var max = d3.max(totaldata, function (d) {return d.Total_EV;});
-    //
-    //
-
-
-    // var xScale = d3.scaleLinear()
-    //     .domain([min, max])
-    //     .range([self.margin.left + self.margin.right, self.svgBounds.width]);
-
-    // var yScale = d3.scaleLinear()
-    //     .domain([0, totaldata.length])
-    //     .range([self.margin.left + self.margin.right, self.svgBounds.width]);
-
-    // var rects = self.svg.selectAll("rect").data(totaldata);
-    //
-    // rects = rects.enter()
-    //     .append("rect")
-    //     .attr("class", "stacked")
-    //     .merge(rects);
-    //
-    // rects.attr("x", function(d, i) {
-    //     return xScale(d.Total_EV);
-    // })
-    //     .attr("y", 50)
-    //     // .attr("y", function(d) {
-    //     //     return xScale(d.Total_EV);
-    //     // })
-    //     .attr("width", function (d) {
-    //         return xScale(d.Total_EV);
-    //     })
-    //     .attr("height", 20)
-    //     .attr("fill", function (d) {
-    //         if (d.RD_Difference == 0)
-    //             return "#45AD6A";
-    //         else
-    //             return colorScale(d.RD_Difference);
-    //     })
-    //     .classed("electoralVotes", true);
-
-
+        .classed("electoralVotes", true);
 
 
     //Display total count of electoral votes won by the Democrat and Republican party
     //on top of the corresponding groups of bars.
     //HINT: Use the .electoralVoteText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
+    var republicanVoteCount = electionResult[0].R_EV_Total;
+    var democratVoteCount = electionResult[0].D_EV_Total;
+    var independentVoteCount = electionResult[0].I_EV_Total;
+
+    console.log(republicanVoteCount);
+    console.log(democratVoteCount);
+    console.log(independentVoteCount);
 
     //Display a bar with minimal width in the center of the bar chart to indicate the 50% mark
     //HINT: Use .middlePoint class to style this bar.
+    groups.append("rect")
+        .attr("x", self.svgWidth/2)
+        .attr("y", self.svgHeight/2 - 5)
+        .attr("width", 1)
+        .attr("height", 30)
+        .classed("middlePoint", true);
 
     //Just above this, display the text mentioning the total number of electoral votes required
     // to win the elections throughout the country
     //HINT: Use .electoralVotesNote class to style this text element
+    groups.append("text")
+        .attr("x", self.svgWidth/2 - 25)
+        .attr("y", self.svgHeight/2 - 30)
+        .text("Electoral Vote (270 needed to win)")
+        .classed("electoralVotesNote", true);
 
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 
