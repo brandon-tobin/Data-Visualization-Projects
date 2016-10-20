@@ -22,7 +22,7 @@ h1 {
 
 .yeartext, .tilestext, .brushtext{
     text-anchor:middle;
-    font-size: 24px;
+    font-size: 18px;
     fill: #565656;
     stroke-width: 0.1px;
     /*stroke: #e5e5e5;*/
@@ -108,6 +108,11 @@ h1 {
     stroke: #404040;;
     stroke-width:4;
     r:25px;
+}
+
+.lineChart  {
+    stroke: black;
+    stroke-dasharray: 2px;
 }
 
 

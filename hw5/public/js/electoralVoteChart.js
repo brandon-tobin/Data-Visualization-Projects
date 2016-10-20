@@ -59,12 +59,130 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
 
     // ******* TODO: PART II *******
 
+    var republican = [];
+    var democrat = [];
+    var independent = [];
+
     //Group the states based on the winning party for the state;
+    for (var i = 0; i < electionResult.length; i++)
+    {
+        if (electionResult[i].State_Winner == "R")
+            republican.push(electionResult[i]);
+        else if (electionResult[i].State_Winner == "D")
+            democrat.push(electionResult[i]);
+        else
+            independent.push(electionResult[i]);
+    }
+
     //then sort them based on the margin of victory
+    republican.sort(function(a, b){return a.RD_Difference - b.RD_Difference});
+    democrat.sort(function(a, b){return a.RD_Difference - b.RD_Difference});
+    independent.sort(function(a, b){return a.RD_Difference - b.RD_Difference});
+
+
+    var totaldata = independent.concat(democrat, republican);
+
+    // console.log(totaldata);
+
+    var stackData = [];
+
+    for (var j = 0; j < totaldata.length; j++)
+    {
+        stackData.push({x: j, y: totaldata[j].Total_EV});
+    }
+
+    var stack = d3.stack();
+    stack(stackData);
+
+    var xScale = d3.scaleBand()
+        .domain(d3.range(stackData.length))
+        .rangeRound([0, self.svgWidth], 0.05);
+
+    var yScale = d3.scaleLinear()
+        .domain([0,
+            d3.max(stackData, function(d) {
+                return d3.max(d, function(d) {
+                    // console.log(d.y0);
+                    return d.y0 + d.y;
+                });
+            })
+        ])
+        .range([0, self.svgHeight]);
+
+    var groups = self.svg.selectAll("g")
+        .data(stackData)
+        .enter()
+        .append("g")
+        .style("fill", function(d, i) {
+            return colorScale(i);
+        });
+
+    // Add a rect for each data value
+    var rects = groups.selectAll("rect")
+        .data(function(d) { return d; })
+        .enter()
+        .append("rect")
+        .attr("x", function(d, i) {
+            return xScale(i);
+        })
+        .attr("y", function(d) {
+            // console.log("Made it here");
+            return yScale(d.y0);
+        })
+        .attr("height", function(d) {
+            return yScale(d.y);
+        })
+        .attr("width", xScale.bandwidth());
+
+
 
     //Create the stacked bar chart.
     //Use the global color scale to color code the rectangles.
     //HINT: Use .electoralVotes class to style your bars.
+
+
+    // var min = d3.min(totaldata, function (d) {return d.Total_EV;});
+    // var max = d3.max(totaldata, function (d) {return d.Total_EV;});
+    //
+    //
+
+
+    // var xScale = d3.scaleLinear()
+    //     .domain([min, max])
+    //     .range([self.margin.left + self.margin.right, self.svgBounds.width]);
+
+    // var yScale = d3.scaleLinear()
+    //     .domain([0, totaldata.length])
+    //     .range([self.margin.left + self.margin.right, self.svgBounds.width]);
+
+    // var rects = self.svg.selectAll("rect").data(totaldata);
+    //
+    // rects = rects.enter()
+    //     .append("rect")
+    //     .attr("class", "stacked")
+    //     .merge(rects);
+    //
+    // rects.attr("x", function(d, i) {
+    //     return xScale(d.Total_EV);
+    // })
+    //     .attr("y", 50)
+    //     // .attr("y", function(d) {
+    //     //     return xScale(d.Total_EV);
+    //     // })
+    //     .attr("width", function (d) {
+    //         return xScale(d.Total_EV);
+    //     })
+    //     .attr("height", 20)
+    //     .attr("fill", function (d) {
+    //         if (d.RD_Difference == 0)
+    //             return "#45AD6A";
+    //         else
+    //             return colorScale(d.RD_Difference);
+    //     })
+    //     .classed("electoralVotes", true);
+
+
+
 
     //Display total count of electoral votes won by the Democrat and Republican party
     //on top of the corresponding groups of bars.

@@ -73,24 +73,110 @@ YearChart.prototype.update = function(){
     self.colorScale = d3.scaleQuantile()
         .domain(domain).range(range);
 
-    // ******* TODO: PART I *******
+    // ******* PART I *******
+
+    //Style the chart by adding a dashed line that connects all these years.
+    //HINT: Use .lineChart to style this dashed line
+
+    var pathData = [ { "x": 0,   "y": 50},  { "x": self.svgWidth,  "y": 50}];
+
+    var pathFunction = d3.line()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; });
+
+    self.svg.append("path")
+        .attr("d", pathFunction(pathData))
+        .classed("lineChart", true);
+
+    var xScale = d3.scaleLinear()
+        .domain([0, self.electionWinners.length])
+        .range([self.margin.left + self.margin.right, self.svgBounds.width])
+        .nice();
 
     // Create the chart by adding circle elements representing each election year
     //The circles should be colored based on the winning party for that year
     //HINT: Use the .yearChart class to style your circle elements
     //HINT: Use the chooseClass method to choose the color corresponding to the winning party.
 
+    var circles = self.svg.selectAll("circle").data(self.electionWinners);
+
+    // var circleColorClass = "";
+    // circles.exit()
+    //     .transition()
+    //     .duration(1000)
+    //     .attr("opacity", 0)
+    //     .remove();
+
+    circles = circles.enter()
+        .append("circle")
+        .merge(circles);
+
+    // circles
+    //     .transition()
+    //     .duration(3000)
+    //     .attr("opacity", 1);
+
+    circles.attr("cx", function (d, i) {
+        return xScale(i);
+    })
+        .attr("cy", 50)
+        .attr("r", 15)
+        .attr("class", function(d) { return self.chooseClass(d.PARTY); })
+        .classed("yearChart", true);
+
+
     //Append text information of each year right below the corresponding circle
     //HINT: Use .yeartext class to style your text elements
 
-    //Style the chart by adding a dashed line that connects all these years.
-    //HINT: Use .lineChart to style this dashed line
+    var text = self.svg.selectAll("text")
+        .data(self.electionWinners)
+        .enter()
+        .append("text");
+
+    var textLabels = text
+        .attr("x", function (d, i) {
+            return xScale(i);
+        })
+        .attr("y", 95)
+        .text( function (d) { return d.YEAR; })
+        .classed("yeartext", true);
+
+
 
     //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
     //HINT: Use .highlighted class to style the highlighted circle
 
-    //Election information corresponding to that year should be loaded and passed to
-    // the update methods of other visualizations
+    self.svg.selectAll("circle")
+        .on("mouseover", function (d) {
+            d3.select(this)
+                .classed("highlighted", true);
+        })
+        .on("mouseout", function (d) {
+            d3.select(this)
+                .classed("highlighted", false);
+        })
+        .on("click", function (d) {
+            d3.select("circle#selected")
+                .classed("selected", false)
+                .attr("id", null);
+            d3.select(this)
+                .attr("id", "selected")
+                .classed("selected", true);
+
+            //Election information corresponding to that year should be loaded and passed to
+            // the update methods of other visualizations
+            d3.csv("data/Year_Timeline_" + d.YEAR + ".csv", function (error, electionResult) {
+                electionResult.forEach(function(d) {
+                    d.Total_EV = parseInt(d.Total_EV);
+                    d.RD_Difference = parseFloat(d.RD_Difference);
+                });
+                self.electoralVoteChart.update(electionResult, self.colorScale);
+                self.votePercentageChart.update(electionResult, self.colorScale);
+                self.tileChart.update(electionResult, self.colorScale);
+            });
+        });
+
+
 
 
     //******* TODO: EXTRA CREDIT *******
