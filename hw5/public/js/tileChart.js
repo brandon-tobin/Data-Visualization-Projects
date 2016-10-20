@@ -100,16 +100,32 @@ TileChart.prototype.update = function(electionResult, colorScale){
             return [0,0];
         })
         .html(function(d) {
-            var tooltip_data = {
-                "state": d.State,
-                "winner": d.State_Winner,
-                "electoralVotes": d.Total_EV,
-                "result":[
-                    {"nominee": d.D_Nominee_prop,"votecount": d.D_Votes,"percentage": d.D_Percentage,"party":"D"} ,
-                    {"nominee": d.R_Nominee_prop,"votecount": d.R_Votes,"percentage": d.R_Percentage,"party":"R"} ,
-                    {"nominee": d.I_Nominee_prop,"votecount": d.I_Votes,"percentage": d.I_Percentage,"party":"I"}
-                ]};
+            var tooltip_data = "";
+            if (d.I_Votes == 0)
+            {
+                tooltip_data = {
+                    "state": d.State,
+                    "winner": d.State_Winner,
+                    "electoralVotes": d.Total_EV,
+                    "result":[
+                        {"nominee": d.D_Nominee_prop,"votecount": d.D_Votes,"percentage": d.D_Percentage,"party":"D"} ,
+                        {"nominee": d.R_Nominee_prop,"votecount": d.R_Votes,"percentage": d.R_Percentage,"party":"R"}
+                    ]};
 
+            }
+            else
+            {
+                tooltip_data = {
+                    "state": d.State,
+                    "winner": d.State_Winner,
+                    "electoralVotes": d.Total_EV,
+                    "result":[
+                        {"nominee": d.D_Nominee_prop,"votecount": d.D_Votes,"percentage": d.D_Percentage,"party":"D"} ,
+                        {"nominee": d.R_Nominee_prop,"votecount": d.R_Votes,"percentage": d.R_Percentage,"party":"R"} ,
+                        {"nominee": d.I_Nominee_prop,"votecount": d.I_Votes,"percentage": d.I_Percentage,"party":"I"}
+                    ]};
+
+            }
             return self.tooltip_render(tooltip_data);
         });
 
@@ -123,7 +139,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .orient('horizontal')
         .scale(colorScale);
 
-    // ******* TODO: PART IV *******
+    // ******* PART IV *******
     //Tansform the legend element to appear in the center and make a call to this element for it to display.
 
     self.legendSvg.selectAll("g")
@@ -138,11 +154,16 @@ TileChart.prototype.update = function(electionResult, colorScale){
 
     self.svg.call(tip);
 
-    var rects = self.svg.selectAll("g")
-        .data(electionResult)
-        .enter().append("g");
+    var groups = self.svg.selectAll("g").data(electionResult);
 
-    rects.append("rect")
+    var groupsEnter = groups.enter().append("g");
+    groupsEnter.append("rect");
+    groupsEnter.append("text").classed("state", true);
+    groupsEnter.append("text").classed("voteCount", true);
+
+    groups = groups.merge(groupsEnter);
+
+    groups.select("rect")
         .attr("x", function (d) {
             return d.Space * tileWidth;
         })
@@ -153,8 +174,6 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .attr("height", tileHeight)
         //Use global color scale to color code the tiles.
         .attr("fill", function (d) {
-            if (d.Abbreviation == "FL")
-                console.log(d.RD_Difference);
             if (d.RD_Difference == 0)
                 return "#45AD6A";
             else
@@ -165,7 +184,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .on("mouseout", tip.hide);
 
     //Display the state abbreviation and number of electoral votes on each of these rectangles
-    rects.append("text")
+    groups.select("text.state")
         .attr("x", function (d) {
             return (d.Space * tileWidth) + tileHeight/1.7;
         })
@@ -175,7 +194,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .text( function (d) { return d.Abbreviation; })
         .classed("tilestext", true);
 
-    rects.append("text")
+    groups.select("text.voteCount")
         .attr("x", function (d) {
             return (d.Space * tileWidth) + tileHeight/1.7;
         })
@@ -192,7 +211,4 @@ TileChart.prototype.update = function(electionResult, colorScale){
     //Call the tool tip on hover over the tiles to display stateName, count of electoral votes
     //then, vote percentage and number of votes won by each party.
     //HINT: Use the .republican, .democrat and .independent classes to style your elements.
-    // self.svg.selectAll("g rects")
-    //     .on("mouseover", tip.show)
-    //     .on("mouseout", tip.hide);
 };
