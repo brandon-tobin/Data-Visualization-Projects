@@ -23,19 +23,17 @@ ShiftChart.prototype.init = function(){
 ShiftChart.prototype.update = function(selectedStates){
     var self = this;
 
-    // ******* TODO: PART V *******
+    // ******* PART V *******
     //Display the names of selected states in a list
 
-    //******** TODO: PART VI*******
-    //Use the shift data corresponding to the selected years and sketch a visualization
-    //that encodes the shift information
+    var statesArray = selectedStates;
 
-    //******** TODO: EXTRA CREDIT I*******
-    //Handle brush selection on the year chart and sketch a visualization
-    //that encodes the shift informatiomation for all the states on selected years
+    var states = "<ul>";
 
-    //******** TODO: EXTRA CREDIT II*******
-    //Create a visualization to visualize the shift data
-    //Update the visualization on brush events over the Year chart and Electoral Vote Chart
+    for (var i = 0; i < statesArray.length; i++)
+        states += "<li>" + statesArray[i] + "</li>";
 
+    states += "</ul>";
+
+    document.getElementById("stateList").innerHTML = states;
 };

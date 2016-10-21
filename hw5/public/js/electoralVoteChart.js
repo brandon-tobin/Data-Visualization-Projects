@@ -4,10 +4,12 @@
  *
  * @param shiftChart an instance of the ShiftChart class
  */
-function ElectoralVoteChart(){
+function ElectoralVoteChart(shiftChart){
 
     var self = this;
     self.init();
+
+    self.shiftChart = shiftChart;
 };
 
 /**
@@ -85,11 +87,11 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
 
     var evCount = 0;
 
-    stackData.push({x: 0, y: totaldata[0].Total_EV, y0: 0, color: totaldata[0].RD_Difference, state: totaldata[0].Abbreviation, stateWinner: totaldata[0].State_Winner});
+    stackData.push({x: 0, y: totaldata[0].Total_EV, y0: 0, color: totaldata[0].RD_Difference, state: totaldata[0].State, stateWinner: totaldata[0].State_Winner});
 
     for (var j = 1; j < totaldata.length; j++)
     {
-        stackData.push({x: j, y: totaldata[j].Total_EV, y0: totaldata[j-1].Total_EV + evCount, color: totaldata[j].RD_Difference, state: totaldata[j].Abbreviation, stateWinner: totaldata[j].State_Winner});
+        stackData.push({x: j, y: totaldata[j].Total_EV, y0: totaldata[j-1].Total_EV + evCount, color: totaldata[j].RD_Difference, state: totaldata[j].State, stateWinner: totaldata[j].State_Winner});
         evCount += totaldata[j-1].Total_EV;
     }
 
@@ -214,10 +216,47 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     }
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 
-    //******* TODO: PART V *******
+    //******* PART V *******
     //Implement brush on the bar chart created above.
     //Implement a call back method to handle the brush end event.
     //Call the update method of shiftChart and pass the data corresponding to brush selection.
     //HINT: Use the .brush class to style the brush.
 
+    var brush = d3.brushX()
+        .extent([[0, self.svgHeight/2],[self.svgWidth, self.svgHeight/2 + 30]])
+        .on("end", brushed);
+
+    function brushed() {
+        var selection = d3.event.selection;
+
+        var states = [];
+
+        var rects = self.svg.selectAll("rect").filter(function (d) {
+            if (d3.select(this).attr("x") >= selection[0] && d3.select(this).attr("x") <= selection[1])
+            {
+                if (d3.select(this).attr("id") != null)
+                    states.push(d3.select(this).attr("id"));
+                return true;
+            }
+            else
+                return false;
+        });
+
+        self.shiftChart.update(states);
+    }
+
+    if (!document.getElementById("brush")) {
+        self.svg.append("g")
+            .attr("id", "brush")
+            .attr("class", "brush")
+            .call(brush);
+    }
+    else {
+        self.svg.select("#brush").remove();
+
+        self.svg.append("g")
+            .attr("id", "brush")
+            .attr("class", "brush")
+            .call(brush);
+    }
 };

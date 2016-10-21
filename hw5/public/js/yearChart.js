@@ -100,21 +100,9 @@ YearChart.prototype.update = function(){
 
     var circles = self.svg.selectAll("circle").data(self.electionWinners);
 
-    // var circleColorClass = "";
-    // circles.exit()
-    //     .transition()
-    //     .duration(1000)
-    //     .attr("opacity", 0)
-    //     .remove();
-
     circles = circles.enter()
         .append("circle")
         .merge(circles);
-
-    // circles
-    //     .transition()
-    //     .duration(3000)
-    //     .attr("opacity", 1);
 
     circles.attr("cx", function (d, i) {
         return xScale(i);
@@ -179,14 +167,4 @@ YearChart.prototype.update = function(){
                 self.tileChart.update(electionResult, self.colorScale);
             });
         });
-
-
-
-
-    //******* TODO: EXTRA CREDIT *******
-
-    //Implement brush on the year chart created above.
-    //Implement a call back method to handle the brush end event.
-    //Call the update method of shiftChart and pass the data corresponding to brush selection.
-    //HINT: Use the .brush class to style the brush.
 };
