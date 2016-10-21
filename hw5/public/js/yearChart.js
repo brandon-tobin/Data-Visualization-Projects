@@ -169,6 +169,10 @@ YearChart.prototype.update = function(){
                 electionResult.forEach(function(d) {
                     d.Total_EV = parseInt(d.Total_EV);
                     d.RD_Difference = parseFloat(d.RD_Difference);
+                    d.R_PopularPercentage = parseFloat(d.R_PopularPercentage);
+                    d.D_PopularPercentage = parseFloat(d.D_PopularPercentage);
+                    d.I_PopularPercentage = parseFloat(d.I_PopularPercentage);
+
                 });
                 self.electoralVoteChart.update(electionResult, self.colorScale);
                 self.votePercentageChart.update(electionResult, self.colorScale);

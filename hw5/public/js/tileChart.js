@@ -174,7 +174,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .attr("height", tileHeight)
         //Use global color scale to color code the tiles.
         .attr("fill", function (d) {
-            if (d.RD_Difference == 0)
+            if (d.State_Winner == "I")
                 return "#45AD6A";
             else
                 return colorScale(d.RD_Difference);

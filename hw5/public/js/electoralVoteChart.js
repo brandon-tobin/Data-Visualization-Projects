@@ -57,7 +57,7 @@ ElectoralVoteChart.prototype.chooseClass = function (party) {
 ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     var self = this;
 
-    // ******* TODO: PART II *******
+    // ******* PART II *******
 
     var republican = [];
     var democrat = [];
@@ -79,30 +79,25 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     democrat.sort(function(a, b){return a.RD_Difference - b.RD_Difference});
     independent.sort(function(a, b){return a.RD_Difference - b.RD_Difference});
 
-
     var totaldata = independent.concat(democrat, republican);
 
     var stackData = [];
 
     var evCount = 0;
 
-    stackData.push({x: 0, y: totaldata[0].Total_EV, y0: 0, color: totaldata[0].RD_Difference});
+    stackData.push({x: 0, y: totaldata[0].Total_EV, y0: 0, color: totaldata[0].RD_Difference, state: totaldata[0].Abbreviation, stateWinner: totaldata[0].State_Winner});
 
     for (var j = 1; j < totaldata.length; j++)
     {
-        stackData.push({x: j, y: totaldata[j].Total_EV, y0: totaldata[j-1].Total_EV + evCount, color: totaldata[j-1].RD_Difference});
+        stackData.push({x: j, y: totaldata[j].Total_EV, y0: totaldata[j-1].Total_EV + evCount, color: totaldata[j].RD_Difference, state: totaldata[j].Abbreviation, stateWinner: totaldata[j].State_Winner});
         evCount += totaldata[j-1].Total_EV;
     }
 
-    var stack = d3.stack();
-    stack(stackData);
-
-    console.log(stackData);
+    evCount += totaldata[totaldata.length-1].Total_EV;
 
     var xScale = d3.scaleLinear()
         .domain([0, evCount])
-        .range([0, self.svgWidth])
-        .nice();
+        .range([0, self.svgWidth]);
 
     var groups = self.svg.selectAll("g").data(stackData);
 
@@ -116,12 +111,15 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
             return xScale(d.y0);
         })
         .attr("y", self.svgHeight/2)
-        .attr("height", 20)
+        .attr("height", 30)
         .attr("width", function (d) {
             return xScale(d.y);
         })
+        .attr("id", function (d) {
+            return d.state;
+        })
         .attr("fill", function (d) {
-            if (d.color == 0)
+            if (d.stateWinner == "I")
                 return "#45AD6A";
             else
                 return colorScale(d.color);
@@ -133,32 +131,87 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     //on top of the corresponding groups of bars.
     //HINT: Use the .electoralVoteText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
-    var republicanVoteCount = electionResult[0].R_EV_Total;
-    var democratVoteCount = electionResult[0].D_EV_Total;
-    var independentVoteCount = electionResult[0].I_EV_Total;
+    var republicanVoteCount = parseInt(electionResult[0].R_EV_Total);
+    var democratVoteCount = parseInt(electionResult[0].D_EV_Total);
+    var independentVoteCount = parseInt(electionResult[0].I_EV_Total);
 
-    console.log(republicanVoteCount);
-    console.log(democratVoteCount);
-    console.log(independentVoteCount);
+    var data = [];
+
+    if (!isNaN(independentVoteCount))
+    {
+        data = [{x: 0, y: independentVoteCount, p: "I"},
+            {x: independentVoteCount, y: democratVoteCount, p: "D"},
+            {x: independentVoteCount + democratVoteCount, y: republicanVoteCount, p: "R"}];
+    }
+    else
+    {
+        data = [{x: 0, y: democratVoteCount, p: "D"},
+            {x: democratVoteCount, y: republicanVoteCount, p: "R"}];
+    }
+
+    var texts = self.svg.selectAll("text#voteCount").data(data);
+
+    texts.exit().remove();
+
+    var textsEnter = texts.enter().append("text");
+
+    texts = texts.merge(textsEnter);
+
+    texts.attr("x", function (d) {
+        if (d.p == "I")
+            return 0;
+        else if (d.p == "D")
+            if (data[0].p == "I")
+                return xScale(data[0].y);
+            else
+                return 0;
+        else
+            return xScale(evCount);
+    })
+        .attr("y", self.svgHeight/2 - 15)
+        .text(function (d) {
+            return d.y;
+        })
+        .attr("id", "voteCount")
+        .attr("class", function(d) { return self.chooseClass(d.p); })
+        .classed("electoralVoteText", true);
 
     //Display a bar with minimal width in the center of the bar chart to indicate the 50% mark
     //HINT: Use .middlePoint class to style this bar.
-    groups.append("rect")
-        .attr("x", self.svgWidth/2)
-        .attr("y", self.svgHeight/2 - 5)
-        .attr("width", 1)
-        .attr("height", 30)
-        .classed("middlePoint", true);
+
+    if (!document.getElementById("middleBar1")) {
+        self.svg.append("rect")
+            .attr("x", self.svgWidth / 2)
+            .attr("y", self.svgHeight / 2 - 5)
+            .attr("width", 1)
+            .attr("height", 40)
+            .attr("id", "middleBar1")
+            .classed("middlePoint", true);
+    }
+    else {
+        self.svg.select("#middleBar1").remove();
+
+        self.svg.append("rect")
+            .attr("x", self.svgWidth / 2)
+            .attr("y", self.svgHeight / 2 - 5)
+            .attr("width", 1)
+            .attr("height", 40)
+            .attr("id", "middleBar1")
+            .classed("middlePoint", true);
+    }
 
     //Just above this, display the text mentioning the total number of electoral votes required
     // to win the elections throughout the country
     //HINT: Use .electoralVotesNote class to style this text element
-    groups.append("text")
-        .attr("x", self.svgWidth/2 - 25)
-        .attr("y", self.svgHeight/2 - 30)
-        .text("Electoral Vote (270 needed to win)")
-        .classed("electoralVotesNote", true);
 
+    if (!document.getElementById("EVText")) {
+        self.svg.append("text")
+            .attr("x", self.svgWidth / 2 - 25)
+            .attr("y", self.svgHeight / 2 - 30)
+            .attr("id", "EVText")
+            .text("Electoral Vote (270 needed to win)")
+            .classed("electoralVotesNote", true);
+    }
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 
     //******* TODO: PART V *******
